@@ -1,0 +1,15 @@
+<div>
+    <button class="botao @TipoBotao" @onclick="OnClickCallback">@Texto</button>
+</div>
+
+@code {
+
+    [Parameter] public string TipoBotao { get; set; } = "botao-ok";
+
+    [Parameter] public string Texto { get; set; } = "StringButton";
+
+    [Parameter]
+    public EventCallback OnClickCallback { get; set; } // this is where to you pass the parent function to be executed as a callback
+
+
+}

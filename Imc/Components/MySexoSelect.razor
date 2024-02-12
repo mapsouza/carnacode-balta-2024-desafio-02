@@ -1,0 +1,38 @@
+@using Imc.Services
+<div>
+    <InputSelect @bind-Value="@Sexo" style="color:black" class="myinput-select" >
+            <option selected disabled>Selecione o sexo</option>
+        @foreach (var cnt in Enum.GetValues(typeof(StaticInfo.Sexo)))
+        {
+            <option value="@cnt">@cnt</option>
+        }
+    </InputSelect>
+</div>
+
+@code{
+    [Parameter] public string PlaceHolder { get; set; } = "";
+    
+    StaticInfo.Sexo? _sexo;
+
+    [Parameter]
+    public StaticInfo.Sexo? Sexo
+    {
+        get { return _sexo; }
+
+        set
+        {
+            if (Sexo != value)
+            {
+                _sexo = value;
+                TextColor = "black";
+                SexoChanged.InvokeAsync((Sexo));
+            }
+        }
+    }
+    
+    [Parameter]
+    public EventCallback<StaticInfo.Sexo?> SexoChanged { get; set; }
+
+    public string TextColor { get; set; } = "#BDBDBD";
+
+}

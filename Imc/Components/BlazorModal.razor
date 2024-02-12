@@ -1,0 +1,59 @@
+@if (ShowModal)
+{
+    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">@Title</h4>
+                    <button type="button" class="close" @onclick="@ModalOk">&times;</button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    @if (PesoIdeal)
+                    {
+                        <PesoIdeal/>
+                    }
+                    else
+                    {
+                        <Sobrepeso/>
+                    }
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info mybtn-modal" @onclick=@ModalOk>Fechar</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+@code
+{
+    [Parameter]
+    public bool ShowModal { get; set; } = false;
+
+    [Parameter]
+    public string Title { get; set; } = "Título";
+
+    [Parameter] 
+    public string TextoDoModal { get; set; } = "";
+    [Parameter]
+    public bool PesoIdeal { get; set; }
+    
+    [Parameter]
+    public EventCallback<bool> ShowModalChanged { get; set; }
+    
+    public void ModalShow() => ShowModal = true;
+    public void ModalCancel() => ShowModal = false;
+    void ModalOk()
+    {
+        Console.WriteLine("Modal ok");
+        ShowModal = false;
+        ShowModalChanged.InvokeAsync(ShowModal);
+
+    }
+}

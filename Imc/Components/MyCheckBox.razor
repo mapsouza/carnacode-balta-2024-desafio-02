@@ -1,0 +1,13 @@
+<div class="container-checkbox">
+    <InputCheckbox id="ckBox" class="myinput-checkbox" @bind-Value="Value"/>
+    <label for="ckBox" class="myinput-checkbox-text">@Texto</label>
+</div>
+<br/>
+@code {
+ 
+    [Parameter] public string Texto { get; set; } = "Texto do checkbox";
+    [Parameter] public bool Value { get; set; } = false;
+    
+    [Parameter]
+    public EventCallback<bool> ValueChanged { get; set; }
+}

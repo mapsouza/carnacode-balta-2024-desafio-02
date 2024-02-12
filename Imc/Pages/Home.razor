@@ -1,0 +1,116 @@
+﻿@page "/"
+@using Imc.Components
+@using Imc.Services
+@using Imc.Services.CalcIMC
+@using Blazored.LocalStorage
+@using Imc.Model
+@inject ICalcIMC _calcImc
+@inject NavigationManager _navigationManager;
+@inject ISyncLocalStorageService _localStorage;
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMC</title>
+</head>
+
+<body>
+<div class="mycontainer">
+    <div class="title">
+        <h1 class="title-text">Cálculo de IMC</h1>
+    </div>
+
+    <MyInput @bind-Value="@Altura" PlaceHolder="Altura"></MyInput>
+    <MyInput @bind-Value="@Peso" PlaceHolder="Peso"></MyInput>
+    <MySexoSelect @bind-Sexo="@Sexo" PlaceHolder="Sexo"></MySexoSelect>
+    <MyCheckBox @bind-Value="@Idade65" Texto="Eu tenho 65 anos ou mais"></MyCheckBox>
+
+    <MyButton Texto="Calcular o meu IMC" TipoBotao="botao-ok" OnClickCallback="@ClicouParaCalcular"></MyButton>
+
+    <MyButton Texto="Exibir o meu histórico" TipoBotao="botao-history" OnClickCallback="@GoToHistory"></MyButton>
+
+    <BlazorModal Title=@($"O resultado do seu IMC é {Imc}!") PesoIdeal="@PesoIdeal" TextoDoModal="@Resultado" ShowModal="@modal" ShowModalChanged="MudaModal"></BlazorModal>
+
+    @if (Imc == null)
+    {
+        <Label class="alert-danger">@Resultado</label>
+    }
+
+</div>
+</body>
+
+</html>
+
+@code {
+
+    public bool modal { get; set; }
+    public string? Altura { get; set; }
+
+    public string Peso { get; set; } = "";
+    
+    public StaticInfo.Sexo? Sexo { get; set; } 
+
+    public bool Idade65 { get; set; }
+    
+    public double? Imc { get; set; } = 0;
+
+    public string Resultado { get; set; } = "";
+    
+    public bool PesoIdeal { get; set; }
+    
+    private void ClicouParaCalcular()
+    {
+        Imc = _calcImc.CalcularIMC(Altura.ToDouble(), Peso.ToDouble());
+        if (Imc == null)
+        {
+            Resultado = "Erro!!! É necessário digitar um valor válido para o peso e a altura.";
+        }
+        else
+        {
+
+            Resultado =  string.Concat("Seu IMC é ", Imc);
+            PesoIdeal = !(Imc >= 25);
+            modal = true;
+            
+        }
+    }
+
+    private void GoToHistory()
+    {
+        _navigationManager.NavigateTo("history");
+    }
+    private  void MudaModal(bool retorno)
+    {
+        modal = false;
+        int _id =1;
+        try
+        { 
+            _id = (_localStorage.GetItem<int>("MaxID"));
+            _id++;
+        }
+        catch (Exception e)
+        {
+            _id = 1;
+        }
+
+        var _data = new DataStore()
+        {
+            Imc = (double)Imc,
+            Data = DateTime.Now,
+            DataStoreID = _id
+
+        };
+        _localStorage.SetItem(_id.ToString(),_data);
+        _localStorage.SetItem("MaxID",_id);
+        Imc = 0;
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _localStorage.Clear();
+    }
+
+}
