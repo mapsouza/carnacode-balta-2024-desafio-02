@@ -1,0 +1,30 @@
+<div>
+    <InputNumber class="input-text" type="text" placeholder="@PlaceHolder"  @bind-Value="@Value"/>
+</div>
+
+@code {
+    [Parameter] public string PlaceHolder { get; set; } = "help!";
+    
+    private double? _value1;
+
+    [Parameter]
+    public double? Value
+    {
+        get => _value1;
+        set
+        {
+            if (_value1 != value)
+            {
+                _value1 = value;
+                ValueChanged.InvokeAsync(value);
+                
+            }
+            
+        }
+    }
+
+    [Parameter]
+    public EventCallback<double?> ValueChanged { get; set; } 
+
+
+}

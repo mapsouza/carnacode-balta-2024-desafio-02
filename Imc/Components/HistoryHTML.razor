@@ -1,0 +1,21 @@
+@using Imc.Model
+@using Imc.Services
+
+<div class="container-grid">
+    <div class="history-div-box"></div>
+    <div class="history-div-title">
+        <strong>@DadosHistoricos.Title</strong>
+    </div>
+    <div class="history-div-date">@DadosHistoricos.Date.DateFormat()</div>
+    <div class="history-div-text">
+        @DadosHistoricos.Text
+        <br/>
+        <hr class="hr-gray"/>
+        <br/>
+    </div>
+</div>
+<br/>
+
+@code {
+    [Parameter] public HistoryText DadosHistoricos { get; set; } 
+}

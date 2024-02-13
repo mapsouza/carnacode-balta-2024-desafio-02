@@ -1,0 +1,92 @@
+﻿@page "/history"
+@using Imc.Model
+@using Imc.Components
+@using Blazored.LocalStorage
+@using Imc.Services
+@inject ISyncLocalStorageService _localStorage;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/app.css">
+    <title>History</title>
+</head>
+
+<body>
+<div class="container-img">
+    <img src="assets/icon-no-bg.png" class="img-center"/>
+</div>
+<div class="title">
+    <h1 class="title-text">Histórico</h1>
+</div>
+<div>
+    <input class="input-text-search" type="text" placeholder="Pesquisar..."/>
+</div>
+
+@foreach (var item in _historyText)
+{
+    <HistoryHTML DadosHistoricos="@item"/>
+}
+
+
+<div >
+    <a href="/">
+        <button class="botao-history">Voltar</button>
+    </a>
+</div>
+
+</body>
+
+</html>
+
+@code{
+    List<DataStore> _dataStore = new List<DataStore>();
+    List<HistoryText> _historyText = new List<HistoryText>();
+
+    protected override void OnInitialized()
+    {
+        int maxID = _localStorage.GetItem<int>("MaxID");
+        for (int i = 1; i <= maxID; i++)
+        {
+            _dataStore.Add(_localStorage.GetItem<DataStore>(i.ToString()));
+            ;
+        }
+
+        foreach (var _ds in _dataStore)
+        {
+            switch (_ds.Imc)
+            {
+                case < 16: // muito grave
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 1));
+                    break;
+                case < 17: // grave
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 2));
+                    break;
+                case < 18.5: // baixo peso
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 3));
+                    break;
+                case < 25: // peso ideal
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 4));
+                    break;
+                case < 30: // sobrepeso
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 5));
+                    break;
+                case < 35: // grau I
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 6));
+                    break;
+                case < 40: // grau II
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 7));
+                    break;
+                case >= 40: // grau III
+                    _historyText.Add(StaticInfo.ListaTextoIMC().First(i => i.Id == 8));
+                    break;
+            }
+
+            _historyText.Last().Date = _ds.Data;
+        }
+    }
+
+
+}

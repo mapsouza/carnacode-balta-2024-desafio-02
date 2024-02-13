@@ -23,4 +23,20 @@
     <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Components\History texts\OldPeople\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Components\History texts\OldPeople\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Components\History texts\OldPeople\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\History texts\OldPeople\**" />
+  </ItemGroup>
+
 </Project>

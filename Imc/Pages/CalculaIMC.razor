@@ -1,0 +1,135 @@
+﻿@page "/"
+@using Imc.Components
+@using Imc.Services
+@using Imc.Services.CalcIMC
+@using Blazored.LocalStorage
+@using Imc.Model
+@inject ICalcIMC _calcImc
+@inject NavigationManager _navigationManager;
+@inject ISyncLocalStorageService _localStorage;
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMC</title>
+</head>
+
+<body>
+<div class="mycontainer">
+    <div class="title">
+        <h1 class="title-text">Cálculo de IMC</h1>
+    </div>
+    <EditForm Model="@DadosDoImc">
+        <DataAnnotationsValidator/>
+        <MyInputValues @bind-Value="@DadosDoImc.Altura" PlaceHolder="Altura"></MyInputValues>
+        <ValidationMessage style="font-size:14px;text-align: center" For="() => DadosDoImc.Altura"></ValidationMessage>
+        <MyInputValues @bind-Value="@DadosDoImc.Peso" PlaceHolder="Peso"></MyInputValues>
+        <ValidationMessage style="font-size:14px;text-align: center" For="() => DadosDoImc.Peso"></ValidationMessage>
+        <MySexoSelect @bind-Sexo="@DadosDoImc.Sexo" PlaceHolder="Sexo"></MySexoSelect>
+        <MyCheckBox @bind-Value="@DadosDoImc.Idade65" Texto="Eu tenho 65 anos ou mais"></MyCheckBox>
+        <MyButton TypeButton="submit" Texto="Calcular o meu IMC" TipoBotao="botao-ok" OnClickCallback="@ClicouParaCalcular"></MyButton>
+    </EditForm>
+
+    <MyButton Texto="Exibir o meu histórico" TipoBotao="botao-history" OnClickCallback="@GoToHistory"></MyButton>
+
+    <BlazorModal HistoryText="@HistoryText" ShowModal="@modal" ShowModalChanged="MudaModal"></BlazorModal>
+
+
+</div>
+</body>
+
+</html>
+
+@code {
+
+    public DataForIMC DadosDoImc { get; set; } = new DataForIMC();
+    public bool modal { get; set; }
+    
+    public double? Imc { get; set; } = 0;
+
+    public string Resultado { get; set; } = "";
+
+    public HistoryText HistoryText;
+
+    
+    private void ClicouParaCalcular()
+    {
+        Imc = _calcImc.CalcularIMC(DadosDoImc.Altura, DadosDoImc.Peso);
+        if (Imc == null)
+        {
+            Resultado = "Erro!!! É necessário digitar um valor válido para o peso e a altura.";
+        }
+        else
+        {
+            Resultado = string.Concat("Seu IMC é ", Imc);
+            switch (Imc)
+            {
+                case < 16: // muito grave
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 1);
+                    break;
+                case < 17: // grave
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 2);
+                    break;
+                case < 18.5: // baixo peso
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 3);
+                    break;
+                case < 25: // peso ideal
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 4);
+                    break;
+                case < 30: // sobrepeso
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 5);
+                    break;
+                case < 35: // grau I
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 6);
+                    break;
+                case < 40: // grau II
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 7);
+                    break;
+                case >= 40: // grau III
+                    HistoryText = StaticInfo.ListaTextoIMC().First(i => i.Id == 8);
+                    break;
+            }
+
+            modal = true;
+        }
+    }
+
+    private void GoToHistory()
+    {
+        _navigationManager.NavigateTo("history");
+    }
+
+    private void MudaModal(bool retorno)
+    {
+        modal = false;
+        int _id = 1;
+        try
+        {
+            _id = (_localStorage.GetItem<int>("MaxID"));
+            _id++;
+        }
+        catch (Exception e)
+        {
+            _id = 1;
+        }
+
+        var _data = new DataStore()
+        {
+            Imc = (double)Imc,
+            Data = DateTime.Now,
+            DataStoreID = _id
+        };
+        _localStorage.SetItem(_id.ToString(), _data);
+        _localStorage.SetItem("MaxID", _id);
+        Imc = 0;
+    }
+
+    // protected override void OnInitialized()
+    // {
+    //     base.OnInitialized();
+    //     //_localStorage.Clear();
+    // }
+
+}
